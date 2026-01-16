@@ -27,13 +27,13 @@ def main() -> None:
         print("Ошибка")
         return
     if not isinstance(data, list):
-        print("Ошибка JSON должен быть списком")
+        print("Ошибка")
         return
     if not data or not all(isinstance(item, dict) for item in data):
-        print("Ошибка список должен содержать словари")
+        print("ошибка")
         return
     if not all_keys_equal(data):
-        print("Ошибка словари имеют разный набор ключей")
+        print("Ошибка")
         return
     write_csv("aaa.csv", data)
     print("Успех")
