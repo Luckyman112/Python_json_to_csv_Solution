@@ -1,30 +1,42 @@
-﻿from json import load
-from csv import DictWriter
+import json
 
-def all_keys_equal(dict_list):
-    if not dict_list:
-        return True
-    if not all(isinstance(d, dict) for d in dict_list):
+def read_json(path: str) -> list[dict[str, str]]:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+def all_keys_equal(data: list[dict[str, str]]) -> bool:
+    if not data:
         return False
-    first_keys = set(dict_list[0].keys())
-    return all(set(d.keys()) == first_keys for d in dict_list[1:])
+    keys = set(data[0].keys())
+    for item in data[1:]:
+        if set(item.keys()) != keys:
+            return False
+    return True
 
-with open("aaa.json", "r", encoding="utf-8") as f:
+def write_csv(path: str, data: list[dict[str, str]]) -> None:
+    headers = list(data[0].keys())
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(",".join(headers) + "\n")
+        for row in data:
+            line = ",".join(row[key] for key in headers)
+            f.write(line + "\n")
+
+def main() -> None:
     try:
-        data = load(f)
+        data = read_json("aaa.json")
     except Exception:
         print("Ошибка")
-    else:
-        if not isinstance(data, list) or not data or not all(isinstance(d, dict) for d in data):
-            print("Ошибка")
-        else:
-            first_keys = set(data[0].keys())
-            if not all(set(d.keys()) == first_keys for d in data[1:]):
-                print("Ошибка")
-            else:
-                fieldnames = list(data[0].keys())
-                with open("aaa.csv", "w", newline='', encoding="utf-8") as out:
-                    dw = DictWriter(out, fieldnames=fieldnames)
-                    dw.writeheader()
-                    dw.writerows(data)
-                print("Успех")
+        return
+    if not isinstance(data, list):
+        print("Ошибка JSON должен быть списком")
+        return
+    if not data or not all(isinstance(item, dict) for item in data):
+        print("Ошибка список должен содержать словари")
+        return
+    if not all_keys_equal(data):
+        print("Ошибка словари имеют разный набор ключей")
+        return
+    write_csv("aaa.csv", data)
+    print("Успех")
+
+if __name__ == "__main__":
+    main()
